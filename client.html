@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обработанный видеопоток</title>
+</head>
+<body>
+    <h1>Обработанный видеопоток</h1>
+    <div>
+        <img id="video_stream" src="#" alt="Video Stream" style="width:1280px;height:720px;">
+    </div>
+    <script>
+        var ws = new WebSocket("ws://localhost:9999");
+
+        ws.onmessage = function(event) {
+            var img = document.getElementById("video_stream");
+            img.src = "data:image/jpeg;base64," + event.data;
+        };
+
+        ws.onclose = function(event) {
+            console.log("WebSocket connection closed.");
+        };
+    </script>
+</body>
+</html>
