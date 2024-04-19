@@ -37,3 +37,9 @@
 *.mov
 *.mkv
 *.avi
+
+# Photos
+
+*.jpg
+*.jpeg
+*.png
