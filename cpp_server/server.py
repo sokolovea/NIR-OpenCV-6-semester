@@ -1,31 +1,38 @@
 import asyncio
 import websockets
 
-async def forward_data(data, target_port):
-    async with websockets.connect(f"ws://localhost:{target_port}") as websocket:
-        await websocket.send(data)
-        response = await websocket.recv()
-        return response
+async def forward_frames(websocket, path, forward_host, forward_port):
+    # Установка соединения с сервером для пересылки кадров
+    forward_uri = f"ws://{forward_host}:{forward_port}"
+    forward_connection = await websockets.connect(forward_uri)
 
-async def handle_client(websocket, path):
-    target_port = 9999
     try:
         while True:
-            # Получение данных от клиента
-            data = await websocket.recv()
+            # Получение кадра от клиента
+            encoded_frame = await websocket.recv()
 
-            # Пересылка данных на целевой порт
-            try:
-                response = await asyncio.wait_for(forward_data(data, target_port), timeout=5)
-            except asyncio.TimeoutError:
-                response = "Timeout occurred while forwarding data to the target port."
+            # Пересылка кадра на сервер
+            await forward_connection.send(encoded_frame)
+    finally:
+        # Закрытие соединения с сервером для пересылки кадров
+        await forward_connection.close()
 
-            # Отправка ответа клиенту
-            await websocket.send(response)
-    except websockets.exceptions.ConnectionClosedError:
-        print("Client disconnected")
+async def main():
+    # Настройки сервера для принятия кадров от клиента
+    server_host = "localhost"
+    server_port = 9998
 
-start_server = websockets.serve(handle_client, "localhost", 9998)
+    # Настройки сервера для пересылки кадров
+    forward_host = "localhost"
+    forward_port = 9999
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+    # Запуск сервера для принятия кадров от клиента
+    server = await websockets.serve(
+        lambda websocket, path: forward_frames(websocket, path, forward_host, forward_port),
+        server_host, server_port)
+
+    # Ожидание завершения сервера
+    await server.wait_closed()
+
+# Запуск основной функции асинхронного сервера
+asyncio.run(main())
