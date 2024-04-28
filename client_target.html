@@ -4,11 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Обработанный видеопоток</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #video_container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #video_stream {
+            min-width: 640px; /* Минимальная ширина изображения */
+			max-width: 1280px;
+            height: auto; /* Автоматическое соотношение сторон */
+            border: 1px solid #ccc; /* Граница для контейнера видеопотока */
+            border-radius: 5px; /* Закругленные углы */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для эффекта поднятия */
+        }
+    </style>
 </head>
 <body>
     <h1>Обработанный видеопоток</h1>
-    <div>
-        <img id="video_stream" src="#" alt="Video Stream" style="width:1280px;height:720px;">
+    <div id="video_container">
+        <img id="video_stream" src="#" alt="Video Stream">
     </div>
     <script>
         var ws = new WebSocket("ws://localhost:9999");
