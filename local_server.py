@@ -3,35 +3,28 @@ import asyncio
 import websockets
 import base64
 import argparse
-import os
-import uuid
-import time
 import numpy as np
+from cryptography.fernet import Fernet
 
-async def video_stream(websocket, path, video_source):
-    video_counter = 0
+async def video_stream(websocket, video_source, key):
+    '''
+    Трансляция видеопотока другому серверу
+    '''
+    cipher_suite = Fernet(key)
     cap = cv2.VideoCapture(video_source)
-
     while True:
         ret, frame = cap.read()
         if not ret:
             break
         
-        # # Преобразование кадра в оттенки серого
-        # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # # Выделение границ
-        # edges = cv2.Canny(gray, 50, 150)
-        # edges_bgr = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-        # combined_frame = cv2.addWeighted(frame, 0.8, edges_bgr, 1, 0)
-        
         # Преобразование кадра в строку base64
-        encoded_frame = base64.b64encode(cv2.imencode('.jpg', frame)[1]).decode('utf-8')        
+        frame = base64.b64encode(cv2.imencode('.jpg', frame)[1]).decode('utf-8') 
+               
+        # Шифруем строку
+        encoded_frame = cipher_suite.encrypt(frame.encode())
 
         try:
-            # Проверка, что клиент все еще подключен
             if websocket.open:
-                # Отправка кадра клиенту
                 await websocket.send(encoded_frame)
             else:
                 print("Клиент отключился. Прекращение отправки данных.")
@@ -40,11 +33,13 @@ async def video_stream(websocket, path, video_source):
             print("Соединение с клиентом закрыто. Прекращение отправки данных.")
             break
 
+# Обработка аргументов командной строки для определения источника видео
 parser = argparse.ArgumentParser(description='Отправка видео')
 parser.add_argument('--source', default=0, help='Источник видео (0 - веб-камера, иначе имя файла)')
 args = parser.parse_args()
 
-start_server= websockets.serve(lambda websocket, path: video_stream(websocket, path, args.source), "localhost", 9998)
-
+# Запуск сервера
+key = b'2na2SazDd926u9bR5Sn5MBJBsuIsyANgdKERwhyBmag='
+start_server = websockets.serve(lambda websocket: video_stream(websocket, args.source, key), "localhost", 9998)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
