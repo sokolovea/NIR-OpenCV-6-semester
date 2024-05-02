@@ -41,10 +41,7 @@ def frame_neuro_processing(frame):
 
 min_shadow = 180
 max_shadow = 255
-# Определение порога минимальной площади контура
 min_contour_area = 500
-
-
 
 def frame_processing(frame):
     frame_initial = frame.copy()
@@ -69,7 +66,7 @@ def frame_processing(frame):
     for cnt in large_contours:
         x, y, w, h = cv2.boundingRect(cnt)
         white_image[y:y+h, x:x+w] = frame_initial[y:y+h, x:x+w]
-        frame_out = cv2.rectangle(frame_out, (x, y), (x+w, y+h), (0, 0, 200), 3)
+        frame_out = cv2.rectangle(frame_out, (x, y), (x+w, y+h), (200, 0, 0), 2)
         # Отображаем прямоугольник и подписываем его меткой класса
     # Отображение результата
 
@@ -116,9 +113,12 @@ async def receive_from_server(websocket, path, key):
                             try:
                                 parsed_instructions = json.loads(instructions)
                                 # print("Разобранные инструкции:", parsed_instructions)
-                                min_shadow = parsed_instructions.get('min_shadow')
-                                max_shadow = parsed_instructions.get('max_shadow')
-                                min_contour_area = parsed_instructions.get('min_contour_area')
+                                global min_shadow
+                                global max_shadow
+                                global min_contour_area
+                                min_shadow = float(parsed_instructions.get('min_shadow'))
+                                max_shadow = float(parsed_instructions.get('max_shadow'))
+                                min_contour_area = float(parsed_instructions.get('min_contour_area'))
                                 recognize = parsed_instructions.get('recognize')
                                 if recognize:
                                     print("Запрошено распознавание движущихся объектов")

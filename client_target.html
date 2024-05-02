@@ -25,12 +25,12 @@
         }
 
         #video_stream {
-            min-width: 320px; /* Минимальная ширина изображения */
-            max-width: 640px;
-            height: auto; /* Автоматическое соотношение сторон */
-            border: 1px solid #ccc; /* Граница для контейнера видеопотока */
-            border-radius: 5px; /* Закругленные углы */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для эффекта поднятия */
+            min-width: 320px;
+            max-width: 1280px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         #extra_image_container {
@@ -56,11 +56,11 @@
         <img id="video_stream" src="#" alt="Video Stream">
         <div id="extra_image_container">
             <div>
-                <label for="minShadow">Минимальная тень:</label>
+                <label for="minShadow">Минимальная яркость участка (ниже - тень):</label>
                 <input type="range" id="minShadow" name="minShadow" min="0" max="255" value="180" onchange="updateMinShadow(this.value)">
                 <output for="minShadow" id="minShadowValue">180</output>
                 <br>
-                <label for="maxShadow">Максимальная тень:</label>
+                <label for="maxShadow">Максимальная яркость участка (выше - свет):</label>
                 <input type="range" id="maxShadow" name="maxShadow" min="0" max="255" value="255" onchange="updateMaxShadow(this.value)">
                 <output for="maxShadow" id="maxShadowValue">255</output>
                 <br>
