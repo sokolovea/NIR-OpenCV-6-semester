@@ -50,26 +50,26 @@
         }
     </style>
 </head>
-<body>
+<body onload="hideRecognizeResults()">
     <h1>Обработанный видеопоток</h1>
     <div id="video_container">
         <img id="video_stream" src="#" alt="Video Stream">
         <div id="extra_image_container">
             <div>
-                <label for="minShadow">Минимальная яркость участка (ниже - тень):</label>
-                <input type="range" id="minShadow" name="minShadow" min="0" max="255" value="180" onchange="updateMinShadow(this.value)">
-                <output for="minShadow" id="minShadowValue">180</output>
+                <label for="minBrightness">Минимальная яркость распознаваемого участка:</label>
+                <input type="range" id="minBrightness" name="minBrightness" min="0" max="255" value="100" onchange="updateMinBrightness(this.value)">
+                <output for="minBrightness" id="minBrightnessValue">100</output>
                 <br>
-                <label for="maxShadow">Максимальная яркость участка (выше - свет):</label>
-                <input type="range" id="maxShadow" name="maxShadow" min="0" max="255" value="255" onchange="updateMaxShadow(this.value)">
-                <output for="maxShadow" id="maxShadowValue">255</output>
+                <label for="maxBrightness">Максимальная яркость распознаваемого участка:</label>
+                <input type="range" id="maxBrightness" name="maxBrightness" min="0" max="255" value="255" onchange="updateMaxBrightness(this.value)">
+                <output for="maxBrightness" id="maxBrightnessValue">255</output>
                 <br>
                 <label>Минимальная площадь движущегося объекта, пикселей:</label>
                 <input type="number" id="min_contour_area" value="500">
                 <br>
                 <button onclick="recognize()">Распознать движущиеся объекты</button>
                 <div id="recognizeResults">
-                    <p>Результат распознавания нейросети</p>
+                    <p>Результат распознавания нейросети:</p>
                     <img id="recognize_image" src="#" alt="Extra Image">
                 </div>
             </div>
@@ -85,8 +85,8 @@
             var message = {
                 recognize: recognizePressed,
                 min_contour_area: document.getElementById("min_contour_area").value,
-                min_shadow: document.getElementById("minShadow").value,
-                max_shadow: document.getElementById("maxShadow").value
+                min_brightness: document.getElementById("minBrightness").value,
+                max_brightness: document.getElementById("maxBrightness").value
             };
             ws.send(JSON.stringify(message))
 
@@ -95,7 +95,7 @@
             img.src = "data:image/jpeg;base64," + jsonData.video_image;
     
             if (jsonData.hasOwnProperty('recognize_image')) {
-                console
+                showRecognizeResults()
                 // Если JSON содержит данные recognize_results, извлекаем их и помещаем в картинку recognize_image
                 var recognizeImage = document.getElementById("recognize_image");
                 recognizeImage.src = "data:image/jpeg;base64," + jsonData.recognize_image;
@@ -112,12 +112,12 @@
             recognizePressed = true;
         };
 
-        function updateMinShadow(value) {
-            document.getElementById('minShadowValue').value = value;
+        function updateMinBrightness(value) {
+            document.getElementById('minBrightnessValue').value = value;
         }
 
-        function updateMaxShadow(value) {
-            document.getElementById('maxShadowValue').value = value;
+        function updateMaxBrightness(value) {
+            document.getElementById('maxBrightnessValue').value = value;
         }
 
         function hideRecognizeResults() {
