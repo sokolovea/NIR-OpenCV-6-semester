@@ -43,3 +43,11 @@
 *.jpg
 *.jpeg
 *.png
+
+# Neuro
+
+*.pt
+
+# Other
+
+*.pem

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-<script src="fernetBrowser.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,16 +20,33 @@
         #video_container {
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             margin-top: 20px;
         }
 
         #video_stream {
-            min-width: 640px; /* Минимальная ширина изображения */
-			max-width: 1280px;
+            min-width: 320px; /* Минимальная ширина изображения */
+            max-width: 640px;
             height: auto; /* Автоматическое соотношение сторон */
             border: 1px solid #ccc; /* Граница для контейнера видеопотока */
             border-radius: 5px; /* Закругленные углы */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для эффекта поднятия */
+        }
+
+        #extra_image_container {
+            width: 320px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #extra_image {
+            width: auto;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -38,11 +54,33 @@
     <h1>Обработанный видеопоток</h1>
     <div id="video_container">
         <img id="video_stream" src="#" alt="Video Stream">
+        <div id="extra_image_container">
+            <div>
+                <input type="number" id="area" value="500">
+                <button onclick="recognize()">Распознать</button>
+            </div>
+            <p>Результат распознавания нейросети</p>
+            <img id="extra_image" src="#" alt="Extra Image">
+        </div>
     </div>
     <script>
+
+        // Объект, представляющий перечисление для дней недели
+        const MessageType = {
+            UPDATE: 1,
+            RECOGNIZE: 2
+        };
+
         var ws = new WebSocket("ws://localhost:9999");
 
         ws.onmessage = function(event) {
+            var message = {
+                update: true,
+                recognize: true,
+                area: document.getElementById("area").value
+            };
+            ws.send(JSON.stringify(message))
+
             var img = document.getElementById("video_stream");
             img.src = "data:image/jpeg;base64," + event.data;
         };
@@ -50,6 +88,11 @@
         ws.onclose = function(event) {
             console.log("WebSocket connection closed.");
         };
+
+        function recognize() {
+            var thresholdValue = document.getElementById("threshold_value").value;
+        };
+
     </script>
 </body>
 </html>
