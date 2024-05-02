@@ -34,7 +34,7 @@
         }
 
         #extra_image_container {
-            width: 320px;
+            width: auto;
             margin-left: 20px;
             display: flex;
             flex-direction: column;
@@ -56,33 +56,52 @@
         <img id="video_stream" src="#" alt="Video Stream">
         <div id="extra_image_container">
             <div>
-                <input type="number" id="area" value="500">
-                <button onclick="recognize()">Распознать</button>
+                <label for="minShadow">Минимальная тень:</label>
+                <input type="range" id="minShadow" name="minShadow" min="0" max="255" value="180" onchange="updateMinShadow(this.value)">
+                <output for="minShadow" id="minShadowValue">180</output>
+                <br>
+                <label for="maxShadow">Максимальная тень:</label>
+                <input type="range" id="maxShadow" name="maxShadow" min="0" max="255" value="255" onchange="updateMaxShadow(this.value)">
+                <output for="maxShadow" id="maxShadowValue">255</output>
+                <br>
+                <label>Минимальная площадь движущегося объекта, пикселей:</label>
+                <input type="number" id="min_contour_area" value="500">
+                <br>
+                <button onclick="recognize()">Распознать движущиеся объекты</button>
+                <div id="recognizeResults">
+                    <p>Результат распознавания нейросети</p>
+                    <img id="recognize_image" src="#" alt="Extra Image">
+                </div>
             </div>
-            <p>Результат распознавания нейросети</p>
-            <img id="extra_image" src="#" alt="Extra Image">
         </div>
     </div>
     <script>
 
-        // Объект, представляющий перечисление для дней недели
-        const MessageType = {
-            UPDATE: 1,
-            RECOGNIZE: 2
-        };
+        var recognizePressed = false;
 
         var ws = new WebSocket("ws://localhost:9999");
 
         ws.onmessage = function(event) {
             var message = {
-                update: true,
-                recognize: true,
-                area: document.getElementById("area").value
+                recognize: recognizePressed,
+                min_contour_area: document.getElementById("min_contour_area").value,
+                min_shadow: document.getElementById("minShadow").value,
+                max_shadow: document.getElementById("maxShadow").value
             };
             ws.send(JSON.stringify(message))
 
+            var jsonData = JSON.parse(event.data); // Распарсиваем JSON-строку
             var img = document.getElementById("video_stream");
-            img.src = "data:image/jpeg;base64," + event.data;
+            img.src = "data:image/jpeg;base64," + jsonData.video_image;
+    
+            if (jsonData.hasOwnProperty('recognize_image')) {
+                console
+                // Если JSON содержит данные recognize_results, извлекаем их и помещаем в картинку recognize_image
+                var recognizeImage = document.getElementById("recognize_image");
+                recognizeImage.src = "data:image/jpeg;base64," + jsonData.recognize_image;
+            }
+            updatePressed = false;
+            recognizePressed = false; 
         };
 
         ws.onclose = function(event) {
@@ -90,8 +109,26 @@
         };
 
         function recognize() {
-            var thresholdValue = document.getElementById("threshold_value").value;
+            recognizePressed = true;
         };
+
+        function updateMinShadow(value) {
+            document.getElementById('minShadowValue').value = value;
+        }
+
+        function updateMaxShadow(value) {
+            document.getElementById('maxShadowValue').value = value;
+        }
+
+        function hideRecognizeResults() {
+            var div = document.getElementById("recognizeResults");
+            div.style.display = "none";
+        }
+
+        function showRecognizeResults() {
+            var div = document.getElementById("recognizeResults");
+            div.style.display = "block";
+        }
 
     </script>
 </body>
